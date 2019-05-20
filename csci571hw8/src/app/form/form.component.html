@@ -1,0 +1,243 @@
+<form name = "form" (click) = "curZip == '' ? getLoc() : null" [formGroup]="searchForm" class = "col-12 col-md-12 col-lg-12">
+  <h1>Product Search</h1>
+
+  <div class = "row">
+    <label class = "col-12 col-md-3 col-lg-3">Keyword<p style = "display: inline; color: red;">*</p></label>
+    <div class = "column col-12 col-md-8 col-lg-8" style = "padding-left: 0px; padding-right: 0px">
+      <input (blur) = "resetKeywordError(keyword, zip, search)"
+             (keyup) = "resetKeywordError(keyword, zip, search)"
+             class = "form-control inputStyle" [style.border-color] = "keywordError === '' ? 'transparent' : 'red'"
+             type="text" #keyword formControlName="keyword" id = "keyword" placeholder="Enter Product Name(eg.iPhone 8)" required>
+      <div style = "color: red; font-size: 0.8em; margin-top: 1.3%;">{{ keywordError }}</div>
+    </div>
+  </div>
+
+  <div class = "row" style = "margin-top: 2%; margin-bottom: 2%;">
+    <label class = "col-12 col-md-3 col-lg-3">Category</label>
+    <select formControlName="category" class="col-12 col-md-4 col-lg-4 inputStyle"  style = "background-color: white;">
+      <option *ngFor="let curCategory of categoryList" [ngValue]="curCategory">
+        {{ curCategory }}
+      </option>
+    </select>
+  </div>
+
+  <div class = "row" style = "margin-top: 2%; margin-bottom: 1%;">
+    <label class = "col-12 col-md-3 col-lg-3">Condition</label>
+    <div class="col-12 col-md-5 col-lg-7" style = "padding-left: 0px;">
+      <label class="checkbox-inline" style = "margin-right: 6%;">
+        <input type="checkbox" formControlName="conditionOption"
+               (change)="onChangeCondition('New', $event.target.checked)">&nbsp;New</label>
+      <label class="checkbox-inline" style = "margin-right: 6%;">
+        <input type="checkbox" formControlName="conditionOption" value="Used"
+               (change)="onChangeCondition('Used', $event.target.checked)">&nbsp;Used</label>
+      <label class="checkbox-inline">
+        <input type="checkbox" formControlName="conditionOption" value="Unspecified"
+               (change)="onChangeCondition('Unspecified', $event.target.checked)">&nbsp;Unspecified</label>
+    </div>
+  </div>
+
+  <div class = "row" style = "margin-top: 1%; margin-bottom: 2%;">
+    <label class = "col-12 col-md-3 col-lg-3">Shipping Options</label>
+    <div class="col-12 col-md-5 col-lg-7" style = "padding-left: 0px;">
+      <label class="checkbox-inline" style = "margin-right: 6%;">
+        <input type="checkbox" formControlName="shipOption" value="LocalPickupOnly"
+               (change)="onChangeShipOption('LocalPickupOnly', $event.target.checked)">&nbsp;Local Pickup</label>
+      <label class="checkbox-inline" style = "margin-right: 6%;">
+        <input type="checkbox" formControlName="shipOption" value="FreeShippingOnly"
+               (change)="onChangeShipOption('FreeShippingOnly', $event.target.checked)">&nbsp;Free Shipping</label>
+    </div>
+  </div>
+
+  <div class = "row" style = "margin-top: 2%; margin-bottom: 2%;">
+    <label class = "col-12 col-md-3 col-lg-3">Distance (Miles)</label>
+    <input class = "col-12 col-md-4 col-lg-4 inputStyle" style = "padding-left: 0px;" formControlName = "distance"
+           type="text" value = 10 placeholder=10>
+  </div>
+
+
+  <div class = "row" style = "margin-top: 2%; margin-bottom: 0%;">
+    <label class = "col-12 col-md-3 col-lg-3">From<p style = "display: inline; color: red;">*</p></label>
+    <div class = "column col-12 col-md-8 col-lg-8" style = "padding-left: 0px; padding-right: 0px">
+      <div (click)="clickCurrentZip(keyword, zip, search)" class="radio">
+        <label><input type="radio" formControlName="zipOption" checked value = "curLoc">&nbsp;Current Location</label></div>
+      <div (click)="clickOtherZip(keyword, zip, search)" class="radio">
+        <label><input type="radio" formControlName="zipOption" value = "inputLoc">&nbsp;Other. Please specify zip code</label></div>
+
+      <mat-form-field style = "width: 100%; margin-top: -3%;">
+        <input (blur) = "resetZipInputError(keyword, zip, search)"
+               (keyup) = "resetZipInputError(keyword, zip, search); getAutocompleteValue(zip)"
+               matInput=""  [matAutocomplete]="auto"
+               style = "background-color: white; margin-bottom: -1.1%; margin-top: -3.8%; border: 0.05em solid transparent;"
+               [style.border-color] = "zipInputError === '' ? 'transparent' : 'red'" class = "form-control inputStyle"
+               type="text" #zip formControlName="zip" name = "zip" required>
+        <mat-autocomplete #auto="matAutocomplete">
+          <mat-option *ngFor="let option of options" [value]="option">{{option}}</mat-option>
+        </mat-autocomplete>
+        <div style = "color: red; font-size: 0.8em;"
+             [style.margin-top.%] = "zipInputError === '' ? 0 : 3">{{ zipInputError }}</div>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class = "row">
+    <button (click)= onSubmit(zip) type="submit" #search disabled style = "color: black; margin-right: 5%;">
+      <img src="../../assets/img/baseline_search_black_18dp.png" style = "max-width: 30%;">Search</button>
+    <button (click)="clean(keyword, zip, search); results.click()">
+      <img style = "max-width: 40%;" src="../../assets/img/baseline_clear_all_black_18dp.png">Clear</button>
+  </div>
+</form>
+
+<!-- results Tab and Wish List Tab -->
+<ul class="nav nav-pills mb-3 justify-content-center topBottomMargin" id="pills-tab" role="tablist">
+  <li class="nav-item">
+    <a (click) = setResultsState()
+       [class.active] = "resultsTabIsSelected" [class.btn-dark] = "resultsTabIsSelected"
+        class="nav-link active btn-dark btn" id="pills-home-tab" data-toggle="pill" #results
+        href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Results</a>
+  </li>
+  <li class="nav-item">
+    <a (click) = clickWishListButton()
+       [class.active] = "!resultsTabIsSelected" [class.btn-dark] = "!resultsTabIsSelected"
+       class="nav-link active btn-dark btn" id="pills-profile-tab" data-toggle="pill"
+       href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Wish List</a>
+  </li>
+</ul>
+
+
+
+
+
+<!-- process bar -->
+<div *ngIf = "dataIsFetching" class="progress">
+  <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+
+<div class="tab-content" id="pills-tabContent" *ngIf = "searchIsClicked && isInSearchResult && keepOutput && !dataIsFetching">
+  <!-- results tab panel -->
+  <div class="tab-pane fade show active" [class.active] = "resultsTabIsSelected"
+       id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+    <!-- error box -->
+    <div *ngIf="resultsTabIsSelected && dataList.length === 0" class = "alert alert-warning col-11 justify-content-center" role="alert" style = "margin: 0 auto;">No records.</div>
+    <div *ngIf = "resultsTabIsSelected && dataList.length > 0">
+
+      <!-- detail button -->
+      <div class="text-right">
+        <button routerLink="/detailInfo/{{selectedItemId}}" class = "btn"
+                (click) = "goToDetailInfo()" [disabled] = "noSelectedItemInResults">Detail
+          <img style = "max-width: 15%;" src='../../assets/img/baseline_arrow_forward_ios_black_18dp.png'></button>
+      </div>
+
+      <!-- table -->
+      <table  align = 'center' class = "resultTable">
+        <tr>
+          <th style = "width: 40px">#</th><th style = 'width: 100px'>Image</th><th style = 'width: 330px'>Title</th>
+          <th style = 'width: 90px'>Price</th><th style = 'width: 150px'>Shipping</th>
+          <th style = 'width: 70px'>Zip</th><th>Seller</th><th>Wish List</th>
+        </tr>
+
+
+        <tr *ngFor = "let item of dataList; let i=index" class = "selectedStyle" [class.selectedStyle] = "dataList[i].itemId + '' === selectedItemId">
+          <ng-container *ngIf = "item.index > (paginationActiveNum - 1)*10 && item.index <= paginationActiveNum*10 ">
+            <td>{{item.index}}</td>
+            <td><img (click) = "showImageInANewTab($event.target)" [src] = "item.image"></td>
+            <td><p (click) = "getItemIdInResults(item, $event.target)" style = "color: #0080ff;"
+                   matTooltip="{{item.title}}" matTooltipPosition="below">{{item.modifiedTitle}}</p></td>
+            <td>{{item.price}}</td>
+            <td>{{item.shipping}}</td>
+            <td>{{item.zip}}</td>
+            <td>{{item.seller}}</td>
+            <td>
+              <button (click) = "modifyWishList(item)" style = "background-color: white; width: 2.7em; height: 2.4em;">
+                <i *ngIf = "!isInLocalStorage(item.itemId)" class = "material-icons" style = "max-width: 95%;">add_shopping_cart</i>
+                <i *ngIf = "isInLocalStorage(item.itemId)" class = "material-icons"
+                   style = "max-width: 95%; color: #b8860b;">remove_shopping_cart</i>
+              </button>
+            </td>
+          </ng-container>
+        </tr>
+
+
+
+      </table>
+      <!-- bootstrap pagination -->
+      <nav aria-label="..." style = "margin-top: 2%;" >
+        <ul class="pagination justify-content-center">
+          <li class="page-item" (click) = "clickPaginationTab('prev')"
+              [ngStyle]="{'pointer-events': paginationActiveNum === 1 ? 'none' : 'auto'}">
+            <a class="page-link" href="#" tabindex="-1" style = "white-space: nowrap;"
+               [ngStyle]="{'color': paginationActiveNum === 1 ? 'lightGrey' : 'black'}">&laquo; Previous</a></li>
+          <li class="page-item active" (click) = "clickPaginationTab(1)" [class.active] = "paginationActiveNum === 1">
+            <a class="page-link" href="#">1</a></li>
+          <li class="page-item active" (click) = "clickPaginationTab(2)" *ngIf = "dataList.length > 10"
+              [class.active] = "paginationActiveNum === 2">
+            <a class="page-link" href="#">2</a></li>
+          <li class="page-item active" (click) = "clickPaginationTab(3)" *ngIf = "dataList.length > 20"
+              [class.active] = "paginationActiveNum === 3">
+            <a class="page-link" href="#">3</a></li>
+          <li class="page-item active" (click) = "clickPaginationTab(4)" *ngIf = "dataList.length > 30"
+              [class.active] = "paginationActiveNum === 4">
+            <a class="page-link" href="#">4</a></li>
+          <li class="page-item active" (click) = "clickPaginationTab(5)" *ngIf = "dataList.length > 40"
+              [class.active] = "paginationActiveNum === 5">
+            <a class="page-link" href="#">5</a></li>
+          <li class="page-item" (click) = "clickPaginationTab('next')"
+              [ngStyle]="{'pointer-events': paginationActiveNum === Math.ceil(dataList.length/10) ? 'none' : 'auto'}">
+            <a class="page-link" tabindex="-1" href="#" style = "white-space: nowrap;"
+               [ngStyle]="{'color': paginationActiveNum === Math.ceil(dataList.length/10) ? 'lightGrey' : 'black'}">Next &raquo;</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+
+  <!-- wish List tag panel -->
+  <div  class="tab-pane fade active show" [class.active] = "!resultsTabIsSelected"
+        id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+    <!-- detail button -->
+    <div class="text-right">
+      <button routerLink="/detailInfo/{{selectedItemId}}" class = "btn"
+              (click) = "goToDetailInfo()" [disabled] = "noSelectedItemInWishList">Detail
+        <img style = "max-width: 15%;" src='../../assets/img/baseline_arrow_forward_ios_black_18dp.png'></button>
+    </div>
+
+    <!-- error box -->
+    <div *ngIf="getLocalStorageLength() === 0" class="alert alert-warning col-11 justify-content-center" role="alert" style = "margin: 0 auto;">No records.</div>
+    <table  *ngIf="getLocalStorageLength() > 0 && !resultsTabIsSelected" align = 'center' class = "resultTable">
+      <tr>
+        <th style = 'width: 40px'>#</th><th style = 'width: 100px'>Image</th><th style = 'width: 330px'>Title</th>
+        <th style = 'width: 90px'>Price</th><th style = 'width: 150px'>Shipping</th><th>Seller</th><th>Wish List</th>
+      </tr>
+
+
+
+
+      <tr *ngFor = "let curItem of wishList; let i=index"  class = "selectedStyle"
+          [class.selectedStyle] = "wishList[i].itemId + '' === selectedItemId">
+
+
+
+
+        <ng-container *ngIf = "isInLocalStorage(curItem.itemId)">
+          <td>{{i+1}}</td>
+          <td><img (click) = "showImageInANewTab($event.target)" [src] = "curItem.image"></td>
+          <td><p (click) = "getItemIdInWishList(curItem, $event.target)" style = "color: #0080ff;"
+                 matTooltip="{{curItem.title}}" matTooltipPosition="below">{{curItem.modifiedTitle}}</p></td>
+          <td>{{curItem.price}}</td>
+          <td>{{curItem.shipping}}</td>
+          <td>{{curItem.seller}}</td>
+          <td><button (click) = "modifyWishList(curItem, $event.target)" style = "background-color: white; width: 2.7em; height: 2.4em;">
+            <i class = "material-icons" style = "max-width: 95%; color: #b8860b;">remove_shopping_cart</i></button></td>
+        </ng-container>
+      </tr>
+      <tr><td colspan="7"><p style = "float: right;">Total Shopping&nbsp;&nbsp;&nbsp;&nbsp;${{totalAmount}}&nbsp;&nbsp;<p></p></td></tr>
+    </table>
+  </div>
+</div>
+
+
+
+
+
+
+
+

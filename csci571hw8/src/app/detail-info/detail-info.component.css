@@ -1,0 +1,36 @@
+ul li a {
+  color: black;
+}
+
+ul li a.active {
+  background-color: black;
+  color: white;
+}
+
+h5{
+  text-align: center;
+}
+
+.moveIntoCircle {
+  left: 10px;
+  top: 40%;
+  position: absolute;
+}
+
+th, td {
+  height: 50px;
+}
+
+
+.progress-wrapper{
+  position: relative;
+  left: 0;
+  top: 0;
+  background-color: transparent;
+}
+.progress{
+  position: absolute;
+  left: 0;
+  top: 0;
+  background-color: transparent;
+}

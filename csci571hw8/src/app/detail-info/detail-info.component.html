@@ -1,0 +1,293 @@
+<!-- Modal -->
+<div class="modal fade" id="imagesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Product Images</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <!-- carousal -->
+        <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+          <!-- images -->
+          <div class="carousel-inner">
+            <ng-container *ngFor = "let imageUrl of imageList; let i=index">
+              <div *ngIf = "i === 0" class="carousel-item active" style = "border: solid 7px black">
+                <img [src]="imageUrl" (click) = "showImageInANewTab($event.target)" class="d-block w-100" alt="...">
+              </div>
+              <div *ngIf = "i > 0" class="carousel-item" style = "border: solid 7px black">
+                <img [src]="imageUrl" (click) = "showImageInANewTab($event.target)" class="d-block w-100" alt="...">
+              </div>
+            </ng-container>
+          </div>
+          <!-- arrows -->
+          <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+          </a>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- process bar
+<div  class="progress">
+  <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+</div>  -->
+
+
+
+
+
+
+<div [@slideOut]="leave ? 'out' : 'in'" >
+
+
+
+
+<!-- Title -->
+<h5 *ngIf = "itemObj?.Title" >{{itemObj.Title}}</h5>
+<!-- list button -->
+<button (click)="goBack()" class = "btn"><img style = "max-width: 15%;" src='../../assets/img/baseline_arrow_back_ios_black_18dp.png'>List</button>
+
+<!-- wish list button      (click) = "modifyWishList(item)"  -->
+<button style = "background-color: white; height: 3em; width: 3em; float: right; border:none;" (click) = "modifyWishList()">
+  <i *ngIf = "!isInLocalStorage()" class = "material-icons" style = "max-width:96%;">add_shopping_cart</i>
+  <i *ngIf = "isInLocalStorage()" class = "material-icons" style = "max-width: 96%; color: #b8860b;">remove_shopping_cart</i>
+</button>
+
+<!-- facebook button -->
+<a target="_blank" style = "height: 2.8em; width: 2.8em; float: right;"
+   (click) = "shareToFacebook()" [href]= "facebookUrl"><img style = "max-width: 96%;" src = "http://csci571.com/hw/hw8/Images/facebook.png"></a>
+
+<!-- Tabs -->
+<div style = "margin-top: 2%;">
+  <ul class="nav nav-tabs justify-content-end topBottomMargin" id="myTab" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" (click) = clickTab(1) [class.active] = "selectedTab === 1"
+         id="product-tab" data-toggle="tab" href="#product" role="tab" aria-controls="product" aria-selected="true">Product</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active" (click) = clickTab(2) [class.active] = "selectedTab === 2"
+         id="photo-tab" data-toggle="tab" href="#photo" role="tab" aria-controls="photo" aria-selected="false">Photos</a>
+    </li>
+    <li class="nav-item active">
+      <a class="nav-link" (click) = clickTab(3) [class.active] = "selectedTab === 3"
+         id="shipping-tab" data-toggle="tab" href="#shipping" role="tab" aria-controls="shipping" aria-selected="false">Shipping</a>
+    </li>
+    <li class="nav-item active">
+      <a class="nav-link" (click) = clickTab(4) [class.active] = "selectedTab === 4"
+         id="seller-tab" data-toggle="tab" href="#seller" role="tab" aria-controls="seller" aria-selected="false">Seller</a>
+    </li>
+    <li class="nav-item active">
+      <a class="nav-link" (click) = clickTab(5) [class.active] = "selectedTab === 5"
+         id="similarItem-tab" data-toggle="tab" href="#similarItem" role="tab" aria-controls="similarItem" aria-selected="false">Similar Products</a>
+    </li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <!-- product tab panel -->
+    <div *ngIf = "itemObj" class="tab-pane active" [class.active] = "selectedTab === 1"
+         id="product" role="tabpanel" aria-labelledby="product-tab">
+      <table  align = 'center' class = "resultTable" style = "width: 100%;">
+        <tr *ngIf = "itemObj.PictureURL"><td style = 'width: 20%;' class = "col-6">Product Images</td>
+          <td class = "col-6"><a data-toggle="modal" data-target="#imagesModal" style = "color: #669999;">View Product Images Here</a></td></tr>
+        <tr *ngIf = "itemObj.Subtitle"><td class = "col-6">SubTitles</td><td class = "col-6">{{itemObj.Subtitle}}</td></tr>
+        <tr *ngIf = "itemObj.CurrentPrice?.Value"><td class = "col-6">Price</td><td class = "col-6">{{ price }}</td></tr>
+        <tr *ngIf = "itemObj.Location"><td class = "col-6">Location</td><td class = "col-6">{{itemObj.Location}}</td></tr>
+        <tr *ngIf = "returnPolicy !== ''"><td class = "col-6">Return Policy (US)</td><td class = "col-6">{{returnPolicy}}</td></tr>
+        <ng-container *ngIf = "itemObj.ItemSpecifics?.NameValueList">
+          <tr *ngFor = "let specific of itemObj.ItemSpecifics.NameValueList">
+            <td class = "col-6">{{specific.Name}}</td><td class = "col-6">{{specific.Value}}</td>
+          </tr>
+        </ng-container>
+      </table>
+    </div>
+
+    <!-- photo tab panel -->
+    <div *ngIf = "this.googleImageList" [class.active] = "selectedTab === 2"
+         style = "margin-top: 2%; " class="tab-pane active"
+         id="photo" role="tabpanel" aria-labelledby="photo-tab">
+
+      <div class="flex col-12 col-md-4 col-lg-4" style = "display: inline-block; vertical-align: top;">
+        <div class="row">
+          <div class="card" style = "border: solid 3px black">
+            <img (click)="showImageInANewTab($event.target)" style = "max-width: 100%;"
+            [src] = "this.googleImageList[0]"></div>
+        </div>
+        <div class="row">
+          <div class="card" style = "border: solid 3px black">
+            <img (click)="showImageInANewTab($event.target)" style = "max-width: 100%;" [src] = "this.googleImageList[3]"></div>
+        </div>
+        <div class="row">
+        </div>
+      </div>
+
+      <div class="flex col-12 col-md-4 col-lg-4" style = "display: inline-block; vertical-align: top;">
+        <div class="row">
+          <div class="card" style = "border: solid 3px black">
+            <img (click)="showImageInANewTab($event.target)" style = "max-width: 100%;" [src] = "this.googleImageList[1]"></div>
+        </div>
+        <div class="row">
+          <div class="card" style = "border: solid 3px black">
+            <img (click)="showImageInANewTab($event.target)" style = "max-width: 100%;" [src] = "this.googleImageList[4]"></div>
+        </div>
+        <div class="row">
+          <div class="card" style = "border: solid 3px black">
+            <img (click)="showImageInANewTab($event.target)" style = "max-width: 100%;" [src] = "this.googleImageList[6]"></div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4 col-lg-4" style = "display: inline-block; vertical-align: top;">
+        <div class="row">
+          <div class="card" style = "border: solid 3px black">
+            <img (click)="showImageInANewTab($event.target)" style = "max-width: 100%;" [src] = "this.googleImageList[2]"></div>
+        </div>
+        <div class="row">
+          <div class="card" style = "border: solid 3px black">
+            <img (click)="showImageInANewTab($event.target)" style = "max-width: 100%;" [src] = "this.googleImageList[5]"></div>
+        </div>
+        <div class="row">
+          <div class="card" style = "border: solid 3px black">
+            <img (click)="showImageInANewTab($event.target)" style = "max-width: 100%;" [src] = "this.googleImageList[7]"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- shipping tab panel -->
+    <div *ngIf = "selectedItemObj" class="tab-pane active" [class.active] = "selectedTab === 3"
+         id="shipping" role="tabpanel" aria-labelledby="shipping-tab">
+      <table  align = 'center' class = "resultTable" style = "width: 100%;">
+        <tr *ngIf = "shippingCost"><td>Shipping Cost</td><td>{{shippingCost}}</td></tr>
+        <tr *ngIf = "selectedItemObj.shippingInfo[0]?.shipToLocations">
+          <td>Shipping Locations</td><td>{{selectedItemObj.shippingInfo[0].shipToLocations}}</td></tr>
+        <tr *ngIf = "handlingTime"><td>Handling time</td>
+          <td>{{handlingTime}}&nbsp;Day<ng-container *ngIf = "handlingTime > 1">s</ng-container></td></tr>
+        <tr *ngIf = "expeditedShipping !== undefined"><td>Expedited Shipping</td>
+          <td><i *ngIf = "expeditedShipping == 'true' " class = "material-icons" style = "color: green;">done</i>
+            <i *ngIf = "expeditedShipping == 'false'" class = "material-icons" style = "color: red;">clear</i></td></tr>
+        <tr *ngIf = "oneDayShippingAvailable !== undefined"><td>One Day Shipping</td>
+          <td><i *ngIf = "oneDayShippingAvailable == 'true'" class = "material-icons" style = "color: green;">done</i>
+            <i *ngIf = "oneDayShippingAvailable == 'false'" class = "material-icons" style = "color: red;">clear</i></td></tr>
+        <tr *ngIf = "selectedItemObj.returnsAccepted !== undefined"><td>Return Accepted</td>
+          <td><i *ngIf = "selectedItemObj.returnsAccepted == 'true'" class = "material-icons" style = "color: green;">done</i>
+          <i *ngIf = "selectedItemObj.returnsAccepted == 'false'" class = "material-icons" style = "color: red;">clear</i></td></tr>
+      </table>
+    </div>
+
+    <!-- seller tab panel -->
+    <div *ngIf = "selectedItemObj && itemObj" class="tab-pane active" [class.active] = "selectedTab === 4" id="seller" role="tabpanel" aria-labelledby="seller-tab">
+      <table  align = 'center' class = "resultTable" style = "width: 100%;">
+        <tr *ngIf = "itemObj.Seller?.UserID"><td colspan="2" style = "text-align: center;">
+          {{itemObj.Seller.UserID | uppercase}}</td></tr>
+        <tr *ngIf = "itemObj.Seller?.FeedbackScore"><td style = "width: 50%;">Feedback Score</td>
+          <td style = "width: 50%;">{{itemObj.Seller.FeedbackScore}}</td></tr>
+
+        <tr *ngIf = "popularity"><td>Popularity</td>
+          <td>
+            <div class="progress-wrapper">
+              <round-progress class="progress" style = "margin-top: -1.8%; margin-left: -1%;" [current]="popularity" [max]="100" [radius]="20" [stroke]="3" [color]="'#009933'"></round-progress>
+              <ng-container class="progress">{{popularity}}</ng-container>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf = "starColor"><td>Feedback Rating Star</td>
+          <td><i *ngIf = "itemObj.Seller.FeedbackScore >= 10000" class = "material-icons" [style.color] = "starColor">star</i>
+            <i *ngIf = "itemObj.Seller.FeedbackScore < 10000" class = "material-icons" [style.color] = "starColor">star_border</i></td></tr>
+        <tr *ngIf = "topRatedSeller"><td>Top Rated</td>
+          <td><i *ngIf = "topRatedSeller == 'true'" class = "material-icons" style = "color: green;">done</i>
+            <i *ngIf = "topRatedSeller == 'false'" class = "material-icons" style = "color: red;">clear</i></td></tr>
+        <tr *ngIf = "selectedItemObj.storeInfo && selectedItemObj.storeInfo[0]?.storeName"><td>Store Name</td>
+          <td>{{selectedItemObj.storeInfo[0].storeName}}</td></tr>
+        <tr *ngIf = "selectedItemObj.storeInfo && selectedItemObj.storeInfo[0]?.storeURL"><td>Buy Product At</td>
+          <td><a target="_blank" style = "color: green;" [href] = "selectedItemObj.storeInfo[0].storeURL">Store</a></td></tr>
+      </table>
+    </div>
+
+    <!-- similar tab panel -->
+    <div class="tab-pane active" [class.active] = "selectedTab === 5" id="similarItem" role="tabpanel" aria-labelledby="similarItem-tab">
+      <div *ngIf="similarItemsList.length === 0" class="alert alert-warning col-11 justify-content-center" role="alert" style = "margin: 0 auto;">No records.</div>
+
+      <ng-container *ngIf = "similarItemsList.length > 0">
+
+
+        <form [formGroup]="form" style = "margin: 3%;">
+          <div class = "row">
+            <select formControlName="orderOption" (change) = "clickOrderOption(orderType)"
+                    class="col-12 col-md-2 col-lg-2 inputStyle"  style = "background-color: white;">
+              <option *ngFor="let curOrder of orderOptionList" [ngValue]="curOrder">{{ curOrder.key }}</option>
+            </select>
+
+            <select formControlName="orderType" class="col-12 col-md-2 col-lg-2 inputStyle" #orderType
+                    style = "background-color: white;">
+              <option *ngFor="let curType of orderTypeList" [ngValue]="curType">{{ curType.key }}</option>
+            </select>
+          </div>
+        </form>
+
+        <ng-container *ngFor = "let item of similarItemsList| orderBy: form.get('orderOption').value.value : form.get('orderType').value.value; let i=index">
+          <ng-container *ngIf = "i < maxNumOfShowedItem">
+            <div  class="card mb-3" style="max-width: 100%; background-color: black;">
+              <div class="row no-gutters">
+                <div class="col-md-2">
+                  <img (click)="showImageInANewTab($event.target)" [src] = "item.imageURL"
+                       class="card-img" alt="..." style = "max-height: 140px; max-width: 140px;">
+                </div>
+                <div class="col-md-8">
+                  <div class="card-body">
+                    <p class="card-text" style = "margin-bottom: 0%;">
+                      <a target="_blank" style = "color: #669999;" [href] = "item.viewItemURL">{{item.title}}</a></p>
+                    <p class="card-text" style = "margin-bottom: 0%; color: greenyellow;">Price: ${{item.price}}</p>
+                    <p class="card-text" style = "margin-bottom: 0%; color: orange;">Shipping Cost: ${{item.shippingCost}}</p>
+                    <p class="card-text" style = "margin-bottom: 0%; color: white;">Days Left: {{item.daysLeft}}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+
+      <div class = "topBottomMargin" style = "text-align: center;">
+        <button *ngIf = "similarItemsList.length > 5" class = "btn-dark" (click) = "changeShowMode()">
+          <span *ngIf = "maxNumOfShowedItem === 5">Show More</span>
+          <span *ngIf = "maxNumOfShowedItem === 20">Show Less</span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

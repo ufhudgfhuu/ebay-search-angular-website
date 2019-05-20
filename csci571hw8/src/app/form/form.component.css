@@ -1,0 +1,71 @@
+h1 {
+  color: white;
+  font-size: 160%;
+  text-align: center;
+  line-height: 260%;
+}
+
+form{
+  background-color: black;
+  padding-bottom: 1%;
+}
+
+label{
+  color: white;
+  padding-left: 0px;
+}
+
+.inputStyle{
+  border-radius: 0.3em;
+  height: 2em;
+}
+
+.topBottomMargin{
+  margin-top: 2%;
+  margin-bottom: 2%;
+}
+
+::ng-deep .mat-form-field-underline {
+  display: none;
+}
+
+table.resultTable tr:hover{
+  background-color: #333333;
+}
+
+td, th{
+  height: 30%;
+}
+
+
+
+img {
+  object-fit: cover;
+  width: 80%;
+  height: 80%;
+}
+
+.pagination>li>a{
+  border: none;
+  color: black;
+}
+.pagination>li.active>a {
+  background: black;
+  color: white;
+}
+
+
+@media (max-width: 600px){
+  form{padding-top: 3%;}
+  h1{text-align: left;}
+}
+
+@media(min-width: 600px){
+  div.row{
+    margin: 0 auto;
+    width: 70%;
+  }
+}
+
+
+
